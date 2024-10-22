@@ -1,0 +1,112 @@
+---
+title: "lab2"
+author: "Antoniuk Davyd"
+date: "2024-10-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Na podstawie danych w tabeli dotyczących pomiaru wysokości walca (w mm) oraz jego średnicy (w mm),
+dokonaj oceny niepewności objętości walca. Pomiarów dokonano suwmiarką o dokładności równej 0.05mm.
+
+```{r}
+wysokosc <- c(67.85, 67.90, 67.90, 67.85, 67.95, 67.90, 67.90, 67.95, 67.90)
+srednica <- c(16.00, 15.90,15.95,15.90,15.95,16.00,15.95,15.90, 15.95)
+dt <- data.frame(wysokosc=wysokosc, srednica=srednica)
+dt
+```
+
+1.wzór na objętość,
+V(d,h)=(pi*d^2*h)/4
+
+$$V(d,h)=\dfrac{\pi*d^2*h}{4}$$
+2. wzór na niepewność standardową pomiaru pośredniego wraz z wyliczonymi pochodnymi
+$$u(V)=\sqrt{(\dfrac{\partial V}{\partial h})^2*u^2(h)+(\dfrac{\partial V}{\partial d})^2*u^2(d)}$$
+
+
+```{r}
+V <- function(h,d) (pi*d^2*h)/4
+D(body(V), "d")
+dVdd <- function(h,d) pi*(2*d)*h/4
+D(body(V), "h")
+dVdh <- function(h,d) pi*d^2/4
+D(body(V), "h")
+```
+3)
+```{r}
+sredh <- mean(dt$wysokosc)
+sredd <- mean(dt$srednica)
+```
+
+
+4)
+
+$$u_A=\dfrac{\sigma(d)}{\sqrt n}$$
+
+```{r}
+u_A_h <- sd(dt$wysokosc)/sqrt(nrow(dt))
+u_A_d <- sd(dt$srednica)/sqrt(nrow(dt))
+```
+
+5)
+```{r}
+u_B_h <- 0.05/sqrt(3)
+
+```
+
+Ponieważ dokladność suwmiarki wynosi 0.05mm, to maksymalny błąd pomiaru wynosi 0.025 mm.
+Ponieważ nie został wskazany rozkład błędów suwmiarki, to przyjmujemy, że jest to rozkład jednostajny.
+Dodatkowo, poniewsaż $\delta x=0,025$ czyli niepewność typu B będzie wyrażona wzorem 
+
+6)
+$$u(d)=\sqrt{u^2_A(d)+u^2_B(d)}~~~~~u(h)=\sqrt{u^2_A(h)+u^2_B(h)}$$
+
+```{r}
+u_h <- sqrt(u_A_h^2 + u_B_h^2)
+```
+
+
+
+
+
+
+```{r}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. obliczenia średnich wartości składowych h i d,
+$$\bar{h}=\dfrac{1}{n}\sum_{i=1}^{n}h_i$$
+$$\bar{d}=\dfrac{1}{n}\sum_{i=1}^{n}d_i$$
+
+
+4. obliczenia niepewności standardowych typu A uA dla obu składowych,
+$$u_A(h)=\sqrt{\dfrac{1}{n(n-1)}\sum_{i=1}^{n}(h_i-\bar{h})^2}$$
+5. obliczenia niepewności standardowych typu B uB dla obu składowych,
+$$u_B(h)=\dfrac{0.05}{\sqrt{3}}$$
+6. niepewności standardowe złożone u dla obu składowych,
+$$u(h)=\sqrt{u^2_A(h)+u^2_B(h)}$$
+```{r}
+
+```
+
