@@ -1,0 +1,194 @@
+---
+title: "Laboratorium 2. Niepewność pomiaru pośredniego"
+author: "Antoniuk Davyd"
+date: "2024-10-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+### **Zadanie1**
+Na podstawie danych w tabeli dotyczących pomiaru wysokości walca (w mm) oraz jego średnicy (w mm),
+dokonaj oceny niepewności objętości walca. Pomiarów dokonano suwmiarką o dokładności równej 0.05mm.
+
+```{r}
+wysokosc <- c(67.85, 67.90, 67.90, 67.85, 67.95, 67.90, 67.90, 67.95, 67.90)
+srednica <- c(16.00, 15.90,15.95,15.90,15.95,16.00,15.95,15.90, 15.95)
+dt <- data.frame(wysokosc=wysokosc, srednica=srednica)
+dt
+```
+
+1.wzór na objętość,
+V(d,h)=(pi*d^2*h)/4
+
+$$V(d,h)=\dfrac{\pi*d^2*h}{4}$$
+2. wzór na niepewność standardową pomiaru pośredniego wraz z wyliczonymi pochodnymi
+$$u(V)=\sqrt{(\dfrac{\partial V}{\partial h})^2*u^2(h)+(\dfrac{\partial V}{\partial d})^2*u^2(d)}$$
+
+Funkcje pochodne
+```{r}
+V <- function(h,d) (pi*d^2*h)/4
+D(body(V), "d")
+dVdd <- function(h,d) pi*(2*d)*h/4
+D(body(V), "h")
+dVdh <- function(h,d) pi*d^2/4
+D(body(V), "h")
+```
+
+3)
+```{r}
+sredh <- mean(dt$wysokosc)
+sredd <- mean(dt$srednica)
+```
+
+
+4)
+
+$$u_A=\dfrac{\sigma(d)}{\sqrt n}$$
+
+```{r}
+u_A_h <- sd(dt$wysokosc)/sqrt(nrow(dt))
+u_A_d <- sd(dt$srednica)/sqrt(nrow(dt))
+```
+
+5)\
+Ponieważ dokladność suwmiarki wynosi 0.05mm, to maksymalny błąd pomiaru wynosi 0.025 mm.
+Ponieważ nie został wskazany rozkład błędów suwmiarki, to przyjmujemy, że jest to rozkład jednostajny.
+Dodatkowo, poniewsaż $\delta x=0,025$ czyli niepewność typu B będzie wyrażona wzorem 
+$$u_B(d)=\dfrac{\delta x}{\sqrt{3}}$$
+
+6)
+$$u(d)=\sqrt{u^2_A(d)+u^2_B(d)}~~~~~u(h)=\sqrt{u^2_A(h)+u^2_B(h)}$$
+```{r}
+delta_x<- 0.025
+u_B_h <- u_B_d <-delta_x/sqrt(3)
+```
+
+```{r}
+u_h <- sqrt(u_A_h^2 + u_B_h^2)
+u_d <- sqrt(u_A_d^2 + u_B_d^2)
+```
+
+7)niepewnośc standardowa uC pomiaru pośredniego dla V\
+$$u(V)=\sqrt{(\dfrac{\partial V}{\partial d})^2*u^2(h)+(\dfrac{\partial V}{\partial h})^2*u^2(d)}$$
+
+```{r}
+u_V <- sqrt(dVdh(sredh,sredd)^2*u_h^2 + dVdd(sredh,sredd)^2*u_d^2)
+```
+
+8)\
+Poniewaz wartosc 1 - alpha nie zostala okreslona , to przyjmujemy ja na poziomie 0.95, a do wyznaczenia wspolczynika rozszerzenia k wiezmiemy kwantyl rozkladu t-studenta.
+
+```{r}
+k <- qt(0.975, nrow(dt)-1)
+U_V <- k*u_V
+```
+
+9)\
+```{r}
+V <- V(sredh,sredd)
+```
+
+
+$$V(d,h)=13557.46\pm-76.73376$$
+
+
+### **ZADANIE 2**
+
+Przyspieszenie ziemskie g może być mierzone za pomocą wahadła matematycznego. Załóżmy, że analizowane
+wahadło ma długość l = (0.9295 ± 0.0010)m. Natomiast podczas pomiaru okresu drgań wahadła otrzymano
+następujący rezultat: T = (1.936 ± 0.004)s. Dodatkowo zakładamy, iż przy podaniu przytoczonych wyżej
+wyników uwzględniono poziom ufności 1 − α = 0.95. Na podstawie powyższych danych obliczy wartość
+przyspieszenia ziemskiego w analogicznych warunkach geograficznych
+
+Dodatkowo wiemy, że okres drgań wahadła matematycznego jest wyrażone wzorem
+$$T=2\pi\sqrt{\dfrac{l}{g}}$$
+Raport przedstaw w podobnej postaci jak w zadaniu pierwszym, pomijając zbędne elementy\
+
+## AD 1
+***
+$$g=\dfrac{4\pi^2*l}{T^2}$$
+
+
+## AD 2
+***
+
+Pochodna po l
+$$\dfrac{\partial v}{\partial l}=\dfrac{4\pi^2}{T^2}$$
+
+Pochodna po t
+$$\dfrac{\partial v}{\partial T}=\dfrac{-8\pi^2*l}{T^3}$$
+
+Wzór na niepewność pomiaru pośredniego jest
+$$u_c(g)=\sqrt{(\dfrac{\partial g}{\partial l})^2*u^2(l)+(\dfrac{\partial g}{\partial T})^2*u^2(T)}$$
+
+Wzór na niepewność standardową pomiaru pośredniego wraz z wyliczonymi pochodnymi
+```{r}
+g <- function(l,t)
+  (pi*2)^2*l/t^2
+D(body(g), "l")
+```
+
+```{r}
+dgdl <- function(l,t)
+  (pi*2)^2/t^2
+D(body(g), "t")
+```
+
+```{r}
+dgdt <- function(l,t)
+  -((pi*2)^2*l*(2*t/(t^2)^2))
+```
+
+## AD 3
+***
+Obliczenia średnich romiarów składowych są niemożliwe do wykonania ponieważ w zadaniu są podane pomiaru dokonane tylko raz wpisujemy zatem wartości zmierzonych wielkości.
+
+```{r}
+sred_l <- 0.9295
+sred_t <- 1.936
+```
+
+## AD 4
+***
+Nie możliwe jest niepewnosci standardowych typu A ponieważ t liczy się na podstawie proby a w zadaniu podane są pojedyncze wartości.\
+## AD 5
+***
+Do obliczenia niepewności standardowej typu B wykorzystamy podane niepewności rozszerzone obu składowych pomiaru.Do obliczenia niepewności standardowej użyjemy wspólczynnika rozszerzonego obliczonego za pomocą kwantyla rozkładu normalnego.\
+```{r}
+k <- qnorm(0.975)
+uB_l <- 0.001/k
+uB_t <- 0.004/k
+```
+
+## AD 6
+***
+Ponieważ na niepewność zlożoną skladają się zarówno niepewności standardowa typu A i typu B a w naszym 
+zadaniu mamy tylko niepewność typu B to możemy przyjąć że jest to niepewność zlożona.\
+
+## AD 7
+***
+Aby policzyć niepewność standardową pomiaru pośredniego g musimy wstawić obliczone wartości do wzoru z punktu 2.\
+
+```{r}
+u_g <- sqrt(dgdl(sred_l,sred_t)^2*uB_l^2 + dgdt(sred_l,sred_t)^2*uB_t^2)
+u_g
+```
+## AD 8 
+***
+Obliczając niepewność rozszerzoną pomiaru g wykorzystamy ten sam współczynnik rozszerzenia co w punkcie 5\ 
+```{r}
+U_g <- u_g*k
+U_g
+```
+
+## AD 9
+***
+```{r}
+g_pom <- g(sred_l,sred_t)
+g_pom
+```
+
+Wynik pomiaru zapisujemy wędług następujący sposób
+$$g=9.790355\pm0.04180468 m/s^2$$
