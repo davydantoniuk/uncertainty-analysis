@@ -1,0 +1,159 @@
+---
+title: "Laboratorium 3"
+author: "Antoniuk Davyd"
+date: "2024-11-05"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Na podstawie danych w tabeli dotyczących pomiaru wysokości stożka (w mm) oraz jego średnicy (w mm), dokonaj oceny niepewności objętości stożka. Pomiarów dokonano suwmiarką o dokładności równej 0.05mm. Dla zmiennej *Średnica* to rozkład prostokątny natomiast dla zmiennej *Wysokość* trójkątny.
+
+```{r}
+coordinates_df <- data.frame(
+  srednica = c(20.65, 20.75, 20.95, 21.00, 20.85, 20.75, 20.75, 20.65, 20.85, 20.95),
+  wysokosc = c(45.15, 45.20, 45.20, 45.15, 45.35, 45.30, 45.20, 45.15, 45.35, 45.25)
+)
+print(coordinates_df)
+```
+
+Wszelkie obliczenia oraz wyniki umieść w Rmarkdown, wg kolejności:\
+1. wzór na objętość,\
+2. wzór na niepewność standardową pomiaru pośredniego wraz z wyliczonymi pochodnymi,\
+3. obliczenia średnich wartości składowych *h* i *d*,\
+4. obliczenia niepewności standardowych typu A $u_A$ dla obu składowych,\
+5. obliczenia niepewności standardowych typu B $u_B$ dla obu składowych,\
+6. niepewności standardowe złożone *u* dla obu składowych,\
+7. niepewnośc standardowa $u_C$ pomiaru pośredniego dla *V*,\
+8. niepewność rozszerzoną *U* pomiaru pośredniego dla *V*\
+9. wynik pomiaru wg standardu zapisu przyjętego w normie.\
+
+## **AD 1**
+***
+Wzór na objętość stożka
+$$V = \frac{1}{12} \pi r^2 h$$
+
+## **AD 2**
+***
+Wzór na niepewność standardową pomiaru pośredniego
+
+$$u(V) = \sqrt{\left( \frac{\partial V}{\partial r}  \right)^2\cdot u^2(r) + \left( \frac{\partial V}{\partial h} \right)^2\cdot u^2(h)}$$
+gdzie:\
+$\frac{\partial V}{\partial r}$ i $\frac{\partial V}{\partial h}$ to pochodne cząstkowe funkcji V po r i h.\
+
+**Obliczenie pochodnych: **\
+Pochodna po r
+$$\frac{\partial V}{\partial r} = \frac{1}{6} \pi r h$$
+
+Pochodna po h
+$$\frac{\partial V}{\partial h} = \frac{1}{12} \pi r^2$$
+**Funkcje dla pochodnych: **
+```{r}
+V <- function(r, h) {
+  (1/12) * pi * r^2 * h
+}
+
+dV_dr <- function(r, h) {
+  (1/6) * pi * r * h
+}
+
+dV_dh <- function(r, h) {
+  (1/12) * pi * r^2
+}
+```
+
+## **AD 3**
+***
+
+Obliczenia średnich wartości składników *h* i *d*.
+
+```{r}
+srednia_d <- mean(coordinates_df$srednica)
+srednia_h <- mean(coordinates_df$wysokosc)
+cat("Średnia wartość średnicy:", srednia_d, "\n")
+cat("Średnia wartość wysokości:", srednia_h, "\n")
+```
+
+## **AD 4**
+***
+
+Obliczenia niepewności standardowych typu A $u_A$ dla obu składowych,\
+Niepewność standardowa typu A dla średnicy:
+$$u_A(d) = \frac{s(d)}{\sqrt{n}}$$
+Niepewność standardowa typu A dla wysokości:
+$$u_A(h) = \frac{s(h)}{\sqrt{n}}$$
+gdzie:\
+$s(d)$ i $s(h)$ to odchylenia standardowe dla średnicy i wysokości,a $n$ to liczba pomiarów.
+```{r}
+uA_d <- sd(coordinates_df$srednica) / sqrt(length(coordinates_df$srednica))
+uA_h <- sd(coordinates_df$wysokosc) / sqrt(length(coordinates_df$wysokosc))
+cat("Niepewność standardowa typu A dla średnicy:", uA_d, "\n")
+cat("Niepewność standardowa typu A dla wysokości:", uA_h, "\n")
+```
+
+## **AD 5**
+***
+
+Obliczenia niepewności standardowych typu B $u_B$ dla obu składowych.\
+Ponieważ dokladność suwmiarki wynosi 0.05mm, to maksymalny błąd pomiaru wynosi 0.025 mm.\
+Niepewność standardowa typu B dla średnicy:
+$$u_B(d) = \frac{0.025}{\sqrt{3}}$$
+
+Niepewność standardowa typu B dla wysokości:
+$$u_B(h) = \frac{0.025}{\sqrt{6}}$$
+
+```{r}
+uB_d <- 0.025 / sqrt(3)
+uB_h <- 0.025 / sqrt(6)
+cat("Niepewność standardowa typu B dla średnicy:", uB_d, "\n")
+cat("Niepewność standardowa typu B dla wysokości:", uB_h, "\n")
+```
+## **AD 6**
+***
+
+Niepewności standardowe złożone u dla obu składników
+$$u(d) = \sqrt{u^2_{A}(d) + u^2_{B}(d)}~~~~~~~~u(h) = \sqrt{u^2_{A}(h) + u^2_{B}(h)}$$
+
+```{r}
+u_d <- sqrt(uA_d^2 + uB_d^2)
+u_h <- sqrt(uA_h^2 + uB_h^2)
+cat("Złożona niepewność standardowa u dla średnicy:", u_d, "\n")
+cat("Złożona niepewność standardowa u dla wysokości:", u_h, "\n")
+```
+
+## **AD 7**
+*** 
+Niepewnośc standardowa $u_C$ pomiaru pośredniego dla *V*\
+*Aby policzyć niepewność standardową pomiaru pośredniego V musimy wstawić obliczone wartości do wzoru z punktu 2*
+
+```{r}
+u_V <- sqrt((dV_dr(srednia_d, srednia_h) * u_d)^2 + (dV_dh(srednia_d, srednia_h) * u_h)^2)
+cat("Niepewność standardowa u_C pomiaru pośredniego dla V:", u_V, "\n")
+```
+
+## **AD 8**
+***
+Niepewność rozszerzoną *U* pomiaru pośredniego dla *V*
+
+Ponieważ wartość *1-*$\alpha$ nie została określona  to przyjmujemy ją na poziomie 0.95 a do wyznaczenia wspólczynnika rozszerzenia k weżmiemy wartość  kwantył rozkładu t-Studenta.
+
+```{r}
+k <- qt(0.975,df=nrow(coordinates_df)-1)
+U_V <- k*u_V
+cat("Niepewność rozszerzona U pomiaru pośredniego dla V:", U_V, "\n")
+```
+
+## **AD 9**
+***
+```{r}
+V <- V(srednia_d,srednia_h)
+cat("Wartość pomiaru pośredniego V:", V, "\n")
+```
+
+Wynik pomiaru wg standardu zapisu przyjętego w normie
+
+$$V=5130.362\pm47.37816 [j.p]$$
+
+
+
